@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFilter = 'all'; // all, pending, completed
     let notificationsEnabled = false;
     let isDarkTheme = localStorage.getItem('smartTheme') !== 'light';
+    let editingTaskId = null; // New state for editing
 
     // Initialize
     init();
@@ -77,17 +78,43 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateVal = taskDateInput.value;
         const priority = taskPriorityInput.value;
 
-        const newTask = {
-            id: Date.now().toString(),
-            title,
-            dueDate: dateVal || null,
-            priority,
-            completed: false,
-            createdAt: new Date().toISOString(),
-            notified: false
-        };
+        if (editingTaskId) {
+            // Edit existing task
+            tasks = tasks.map(task => {
+                if (task.id === editingTaskId) {
+                    return {
+                        ...task,
+                        title,
+                        dueDate: dateVal || null,
+                        priority,
+                        notified: false // reset notification if changed
+                    };
+                }
+                return task;
+            });
+            showToast('Tâche modifiée avec succès!');
+            editingTaskId = null;
+            
+            // Reset button text
+            const btnText = document.getElementById('submitBtnText');
+            const btnIcon = document.getElementById('submitBtnIcon');
+            if(btnText) btnText.textContent = 'Ajouter la tâche';
+            if(btnIcon) btnIcon.className = 'fa-solid fa-plus';
+        } else {
+            // Add new task
+            const newTask = {
+                id: Date.now().toString(),
+                title,
+                dueDate: dateVal || null,
+                priority,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                notified: false
+            };
+            tasks.unshift(newTask);
+            showToast('Tâche ajoutée avec succès!');
+        }
 
-        tasks.unshift(newTask);
         saveTasks();
         renderTasks();
         updateProgress();
@@ -98,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
         taskPriorityInput.value = 'medium';
         
         closeMobileForm();
-        showToast('Tâche ajoutée avec succès!');
     }
 
     function toggleTaskStatus(id) {
@@ -127,6 +153,33 @@ document.addEventListener('DOMContentLoaded', () => {
             updateProgress();
             showToast('Tâche supprimée');
         }, 300); // Matches CSS transition duration
+    }
+
+    function editTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (!task) return;
+
+        editingTaskId = id;
+        
+        // Populate form
+        taskTitleInput.value = task.title;
+        taskDateInput.value = task.dueDate || '';
+        taskPriorityInput.value = task.priority;
+        
+        // Change button text
+        const btnText = document.getElementById('submitBtnText');
+        const btnIcon = document.getElementById('submitBtnIcon');
+        if(btnText) btnText.textContent = 'Modifier la tâche';
+        if(btnIcon) btnIcon.className = 'fa-solid fa-pen';
+        
+        // Open form
+        if (window.innerWidth <= 600) {
+            openMobileForm();
+        } else {
+            // Scroll to form on desktop
+            taskTitleInput.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }
 
     // Render logic
@@ -195,14 +248,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${dateHtml}
                         </div>
                     </div>
-                    <button class="task-delete" aria-label="Supprimer la tâche">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
+                    <div class="task-actions">
+                        <button class="task-edit" aria-label="Modifier la tâche">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="task-delete" aria-label="Supprimer la tâche">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
                 `;
 
                 // Add event listeners
                 const checkbox = li.querySelector('.task-checkbox');
                 checkbox.addEventListener('click', () => toggleTaskStatus(task.id));
+                
+                const editBtn = li.querySelector('.task-edit');
+                editBtn.addEventListener('click', () => editTask(task.id));
                 
                 const delBtn = li.querySelector('.task-delete');
                 delBtn.addEventListener('click', () => deleteTask(task.id, li));
