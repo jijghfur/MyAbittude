@@ -302,6 +302,8 @@ body:not(.light-theme) .header-content h1 {
     background: var(--input-bg);
     border: 1px solid var(--glass-border);
     color: var(--text-main);
+    -webkit-text-fill-color: var(--text-main);
+    opacity: 1;
     padding: 0.8rem 1rem;
     border-radius: 0.75rem;
     font-family: inherit;
@@ -743,6 +745,8 @@ body.light-theme .task-item.completed {
         border: none;
         border-top: 1px solid var(--glass-border);
         background: var(--bg-main); /* solid background better for mobile modal */
+        backdrop-filter: none !important; /* FIX iOS Safari native input bug */
+        -webkit-backdrop-filter: none !important;
     }
     
     .add-task-section.show {
