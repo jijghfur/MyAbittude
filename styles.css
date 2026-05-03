@@ -565,7 +565,20 @@ body.light-theme .task-item.completed {
     font-weight: 600;
 }
 
-.task-delete {
+.task-actions {
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: var(--transition-fast);
+}
+
+.task-item:hover .task-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.task-edit, .task-delete {
     background: transparent;
     border: none;
     color: var(--text-muted);
@@ -577,13 +590,11 @@ body.light-theme .task-item.completed {
     align-items: center;
     cursor: pointer;
     transition: var(--transition-fast);
-    opacity: 0;
-    transform: translateX(10px);
 }
 
-.task-item:hover .task-delete {
-    opacity: 1;
-    transform: translateX(0);
+.task-edit:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
 }
 
 .task-delete:hover {
@@ -762,10 +773,18 @@ body.light-theme .task-item.completed {
         gap: 0.75rem;
     }
     
-    /* Always show delete button on mobile */
-    .task-delete {
+    /* Always show actions on mobile */
+    .task-actions {
         opacity: 1;
         transform: translateX(0);
+    }
+    
+    .task-edit {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+    }
+    
+    .task-delete {
         background: rgba(239, 68, 68, 0.1);
         color: var(--priority-high);
     }
