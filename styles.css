@@ -308,7 +308,10 @@ body:not(.light-theme) .header-content h1 {
     font-size: 0.95rem;
     cursor: pointer;
     transition: var(--transition-fast);
-    appearance: none; /* Remove default styling */
+}
+
+.option-group select {
+    appearance: auto;
 }
 
 .option-group input[type="datetime-local"]:focus,
@@ -729,10 +732,13 @@ body.light-theme .task-item.completed {
         left: 0;
         width: 100%;
         height: auto;
+        max-height: 85vh; /* Allow scrolling if screen is small */
+        overflow-y: auto;
         border-radius: 1.5rem 1.5rem 0 0;
         z-index: 200;
         transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        padding-bottom: 2rem; /* safe area */
+        padding-bottom: 3rem; /* safe area for scroll */
+        padding-top: 1.5rem;
         box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
         border: none;
         border-top: 1px solid var(--glass-border);
